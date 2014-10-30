@@ -5,6 +5,7 @@ vpath %.c src
 vpath %.h inc
 vpath %.o obj
 
+
 BDIR = bin 
 IDIR = inc
 ODIR = obj

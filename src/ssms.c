@@ -1,3 +1,9 @@
+/* header file: inc/ssms.h
+ * 1. define the data structure of sparse martix: crs
+ * 2. method bicgstab to solve it.
+*/
+
+
 # include "ssms.h"
 # include <math.h>
 
