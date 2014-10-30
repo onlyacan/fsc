@@ -1,0 +1,17 @@
+#ifndef __VECTOR_H__
+#define __VECTOR_H__
+
+#include "type.h"
+/*
+  this module is for vector operation
+
+*/
+
+
+
+real *vcopy(id n, real *y, real *x);        /* copy the vector from x to y, y = x*/
+real *axpy(id n, real a, real *x, real *y); /* y = a*x + y*/ 
+real dot(id n, real *a, real *b);           /* doct product of two vector*/
+real norm(id n, double *b);                 /*calculate the norm of a vector*/
+
+#endif /*__VECTOR_H__*/

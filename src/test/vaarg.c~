@@ -1,0 +1,16 @@
+#include <varargs.h>
+
+void
+foo(va_alist)
+    va_dcl
+{
+    va_list ap;
+
+   va_start(ap);
+    while (...) {
+        ...
+        x = va_arg(ap, type);
+        ...
+    }
+    va_end(ap);
+}

@@ -1,0 +1,54 @@
+
+                       ##########################
+                       # Programming Experience #
+                       ##########################
+                       
+
+After tried many programming languges, and many failures, here I note down the experience
+
+Ideas:
+=======
+    * get your hand dirty
+    * keep it simple
+    * priority: correctness > elegent > speed
+
+
+Goal:
+=======
+    1. close to nature, less human design. this makes the software life time longer. yes, it may be trival to programm this way.
+
+    2. in c, the speed and simplicity is its advantage. But the human has headach when the ** too long, too complex. the solution is to make it into two levels (only two levels), in one level, the function take all information it should take, the argument should be the build-types as possible. In the higher level, these functions can be glued together, creating some elegent interface exposed to user. 
+
+    3. Clear module, two level. 
+
+
+
+Modules:
+========
+    1. mesh.h:  define mesh as closer to nature as possible. no extra information. this is very important for extendability in furture. 
+
+    2. field.h: define the all kind of field, now only support scalar(rank=0), vector(rank=1), tensor(rank=3). 
+
+    3. disct.h: function used to discritiate all kind of terms
+
+    4. equation.h: make a clear interface, use only see the equation not term, equation is actually composed of: field, and discretiation method( function). 
+
+    5. ssms.h: the sparse matrix solver
+
+    some other modules:
+
+        * safe.h:  handling checking, error handling. 
+        * io.h:    handling io
+        * ctrl.h:  control the flow of running. includeing time, innear/outer steps. 
+
+
+
+Rules programming
+=================
+    * every module must have a test driver.
+    * don't programm more than 2 hrs per day. 
+    * if tired then stop programming
+    * plan, researching, before codeing
+
+
+

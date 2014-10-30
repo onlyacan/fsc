@@ -1,0 +1,5 @@
+After tried many programming languges, and many failures, here I note down the experience
+
+Goal:
+    1. close to nature, less human design. this makes the software life time longer. yes, it may be trival to programm this way.
+    2. in c, the speed and simplicity is its advantage. But the human has headach when the ** too long, too complex. the solution is to make it into two levels (only two levels), in one level, the function take all information it should take, the argument should be the build-types as possible. In the higher level, these functions can be glued together, creating some elegent interface exposed to user. 

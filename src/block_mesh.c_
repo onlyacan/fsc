@@ -1,0 +1,190 @@
+#include "mesh.h"
+#include "main.h"
+
+
+mesh *block_mesh(real xlen, real ylen, id nx, id ny, real exx)
+{
+    id i,j;
+    mesh *m = NULL;
+
+    printf("block_mesh()...\n");
+    m = malloc(sizeof(mesh) * 1) ;
+    if (m == NULL) printf("error**: block_mesh(): malloc() \n"); 
+    real *x = mesh1d(0.0, xlen, nx, exx);
+    real *y = mesh1d(0.0, ylen, ny, exx);
+    //for(i=0; i <= nx; i++) printf("%12.6lf\n", x[i]);
+
+    pt *ps = NULL;
+    pt p;
+    id npx = nx +1, npy = ny +1, np = npx * npy, pid;
+    real *rp = malloc(sizeof(real) * DIM * np);  // DIM = dimension of pointer vec
+    ps = malloc(sizeof(pt) * np);
+    for(i=0; i< npx; i++)
+	for(j=0; j< npy; j++){
+	    pid = npy * i + j;
+	    p = rp + pid * DIM;
+	    p[0] = x[i], p[1] = y[j];
+	    ps[pid] = p;
+	    printf("%lli: %12.4lf %12.4lf\n", pid, ps[pid][0], ps[pid][1]);
+	}
+
+    face *fxs=NULL, *fys=NULL;  /* xfs= faces vertical to x axis */
+    id nfx = npx * ny;
+    id nfy = nx * npy;
+    id fid;
+    fxs = malloc(sizeof(face) * nfx); 
+    fys = malloc(sizeof(face) * nfy);
+    if (fxs == NULL || fys == NULL) printf("Error: block_mesh(): malloc() for fxs fys\n");
+
+    cell *cs = NULL;
+    id cid; 
+    id nc = nx * ny;
+    cs = malloc(sizeof(cell) * nc);  
+    if (cs == NULL) printf("Error: block_mesh(): malloc() for cs\n");
+    // don't have to initialize
+    for(i=0; i< nc; i++){
+        cs[i].nsf = 0;
+        cs[i].sfs = NULL;
+        cs[i].nnf = 0;
+        cs[i].nfs = NULL;
+        cs[i].ct = NULL;
+        cs[i].vol = 0.0;
+    }
+
+    /*x faces: npx * ny    */
+    printf("x faces ---\n");
+    for(i = 0, j=0; j< ny; j++){  /* left boundary faces*/
+	fid = ny * i + j;
+	fxs[fid].np = 2; 
+	fxs[fid].ps = malloc(sizeof(pt) * fxs[fid].np );
+	fxs[fid].ps[0] = ps[npy*i + j  ]; 
+	fxs[fid].ps[1] = ps[npy*i + j+1];
+	fxs[fid].type = boundary;
+	// make a vector pointing left
+        cid = ny * i + j ;
+        cs[cid].sfs = realloc(cs[cid].sfs, ++(cs[cid].nsf) );
+        cs[cid].sfs[cs[cid].nsf-1] =  fxs+fid;
+        (fxs+fid)-> on = cs+cid; // nb = boudary
+	printf("i=%12lli,j=%12lli,fid=%12lli\n",i, j,fid);
+    }
+    for(i=1; i< npx-1; i++){
+	for(j=0; j< ny; j++){
+            fid = ny * i + j;
+            fxs[fid].np = 2; 
+            fxs[fid].ps = malloc(sizeof(pt) * fxs[fid].np );
+            fxs[fid].ps[0] = ps[npy*i + j  ]; 
+            fxs[fid].ps[1] = ps[npy*i + j+1];
+            fxs[fid].type = internal;
+            // make a vector pointing right
+            cid = ny * (i-1) + j ;
+            cs[cid].sfs = realloc(cs[cid].sfs, ++(cs[cid].nsf) );
+            cs[cid].sfs[cs[cid].nsf-1] =  fxs+fid;
+            (fxs+fid)-> on = cs+cid; 
+
+            cid = ny * i   + j ;
+            cs[cid].nfs = realloc(cs[cid].nfs, ++(cs[cid].nnf) );
+            cs[cid].nfs[cs[cid].nnf-1] =  fxs+fid;
+            (fxs+fid)-> nb = cs+cid; 
+
+            printf("i=%12lli,j=%12lli,fid=%12lli\n",i, j,fid);
+	}
+    }
+    for(i = npx-1, j=0; j< ny; j++){  /* right boundary faces*/
+	fid = ny * i + j;
+	fxs[fid].np = 2; 
+	fxs[fid].ps = malloc(sizeof(pt) * fxs[fid].np );
+	fxs[fid].ps[0] = ps[npy*i + j  ]; 
+	fxs[fid].ps[1] = ps[npy*i + j+1];
+	fxs[fid].type = boundary;
+	// make a vector pointing left
+        cid = ny * (i-1) + j ;
+        cs[cid].sfs = realloc(cs[cid].sfs, ++(cs[cid].nsf) );
+        cs[cid].sfs[cs[cid].nsf-1] =  fxs+fid;
+        (fxs+fid)-> on = cs+cid; // nb = boudary
+
+	printf("i=%12lli,j=%12lli,fid=%12lli\n",i, j,fid);
+    }
+
+    /* test  */
+    printf("when j = 0:\n");
+    for(j=0, i =0; i < nx; i++){
+        cid = ny * i + j;
+        printf("i= %lli: number of slaves: %lli, number of nbs: %lli\n",i, cs[cid].nsf, cs[cid].nnf);
+    }
+
+
+    /*y faces: nx * npy    */
+    printf("x faces ---\n");
+    for(i = 0, j=0; i< nx; i++){  /* left boundary faces*/
+	fid = npy * i + j;
+	fys[fid].np = 2; 
+	fys[fid].ps = malloc(sizeof(pt) * fys[fid].np );
+	fys[fid].ps[0] = ps[npy*i + j  ]; 
+	fys[fid].ps[1] = ps[npy*(i+1) + j];
+	fys[fid].type = boundary;
+	// make a vector pointing downwards
+        cid = ny * i + j ;
+        cs[cid].sfs = realloc(cs[cid].sfs, ++(cs[cid].nsf) );
+        cs[cid].sfs[cs[cid].nsf-1] =  fys+fid;
+        (fys+fid)-> on = cs+cid; // nb = boudary
+	printf("i=%12lli,j=%12lli,fid=%12lli\n",i, j,fid);
+    }
+
+
+    for(j=1; j< npy-1; j++){
+        for(i=0; i< nx; i++){
+            fid = npy * i + j; // stop here
+            fys[fid].np = 2; 
+            fys[fid].ps = malloc(sizeof(pt) * fys[fid].np );
+            fys[fid].ps[0] = ps[npy*i + j  ]; 
+            fys[fid].ps[1] = ps[npy*(i+1) +j];
+            fys[fid].type = internal;
+            // make a vector pointing up
+            cid = ny * i + (j-1) ;
+            cs[cid].sfs = realloc(cs[cid].sfs, ++(cs[cid].nsf) );
+            cs[cid].sfs[cs[cid].nsf-1] =  fys+fid;
+            (fys+fid)-> on = cs+cid; 
+
+            cid = ny * i   + j ;
+            cs[cid].nfs = realloc(cs[cid].nfs, ++(cs[cid].nnf) );
+            cs[cid].nfs[cs[cid].nnf-1] =  fys+fid;
+            (fys+fid)-> nb = cs+cid; 
+
+            printf("i=%12lli,j=%12lli,fid=%12lli\n",i, j,fid);
+	}
+    }
+    for(j = npy-1, i=0; i< nx; i++){  /* top boundary faces*/
+	fid = npy * i + j;
+	fys[fid].np = 2; 
+	fys[fid].ps = malloc(sizeof(pt) * fys[fid].np );
+	fys[fid].ps[0] = ps[npy*i + j  ]; 
+	fys[fid].ps[1] = ps[npy*(i+1) + j];
+	fys[fid].type = boundary;
+	// make a vector pointing up
+        cid = ny * i + (j-1) ;
+        cs[cid].sfs = realloc(cs[cid].sfs, ++(cs[cid].nsf) );
+        cs[cid].sfs[cs[cid].nsf-1] =  fys+fid;
+        (fys+fid)-> on = cs+cid; // nb = boudary
+
+	printf("i=%12lli,j=%12lli,fid=%12lli\n",i, j,fid);
+    }
+
+    /* test  */
+    printf("when i = 0:\n");
+    for(i=0, j =0; j < ny; j++){
+        cid = ny * i + j;
+        printf("j= %lli: number of slaves: %lli, number of nbs: %lli\n",j, cs[cid].nsf, cs[cid].nnf);
+    }
+
+
+
+
+
+    // set the boundary condtion
+
+
+
+    free(ps);
+    free(x), free(y);
+    return m;
+}

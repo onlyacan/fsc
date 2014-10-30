@@ -1,0 +1,20 @@
+\documentclass[a4paper]{article}
+
+
+
+
+
+
+\begin{document}
+\title{Test read\_gmsh.c}
+\maketitle 
+
+cretiron of successful reading of msh file:
+\begin{itemize}
+\item the sum of the number of internal faces and neighbour faces is 3.
+\item every internal face has a master cell (owner) and a neighbour cell. boundary face has no neighbour cell, the cell pointer is \verb|NULL|.
+\item the total ara is correct.
+\end{itemize}
+
+ 
+\end{document}

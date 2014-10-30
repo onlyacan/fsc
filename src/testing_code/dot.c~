@@ -1,0 +1,12 @@
+#include <stdio.h>
+
+#define dot(a,b) ( a[0] * b[0] + a[1] * b[1])
+
+int main(void)
+{
+    double a[] = {1.0, 1.0};
+    double b[] = {1.0, 1.0};
+
+    printf();
+    return 0;
+}
